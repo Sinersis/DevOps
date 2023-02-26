@@ -1,0 +1,49 @@
+---
+- name: Prepare GitLab Runner Install
+  hosts: gitlab_runner
+
+  tasks:
+    - name: Get Gitlab repository installation script
+      get_url:
+        url: https://packages.gitlab.com/install/repositories/runner/gitlab-runner/script.deb.sh
+        dest: /tmp/gitlab-runner.script.deb.sh
+        mode: 0744
+
+    - name: Install Gitlab repository
+      command: bash /tmp/gitlab-runner.script.deb.sh
+      args:
+        creates: "/etc/apt/sources.list.d/runner_gitlab-runner.list"
+
+    - name: Update & Upgrade
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Create Gitlab user
+      ansible.builtin.user:
+        name: "gitlab-runner"
+        append: false
+        create_home: true
+        password_lock: true
+        groups:
+          - sudo
+
+
+
+- name: Install GitLab Runner
+  hosts: all
+
+  tasks:
+    - name: Install GitLab Runner
+      ansible.builtin.apt:
+        package: gitlab-runner
+
+    - name: Register GitLab Runner
+      command: >
+        gitlab-runner register
+        --non-interactive
+        --url "https://gitlab.com/"
+        --registration-token "GR1348941bVxpjWfGm9nize3Naxz6"
+        --description "docker-runner"
+        --executor "docker" 
+        --docker-image docker:latest
