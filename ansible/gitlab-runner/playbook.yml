@@ -42,8 +42,8 @@
       command: >
         gitlab-runner register
         --non-interactive
-        --url "https://gitlab.com/"
-        --registration-token "GR1348941bVxpjWfGm9nize3Naxz6"
+        --url "{{register_url}}"
+        --registration-token "{{register_token}}"
         --description "docker-runner"
         --executor "docker" 
         --docker-image docker:latest
